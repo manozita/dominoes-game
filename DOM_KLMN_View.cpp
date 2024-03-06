@@ -1,10 +1,9 @@
-//DOM-KLMN - Projeto Domino - Etapa 2
-//16/08/2023
+//DOM-KLMN - Projeto Domino - Etapa 3
+//20/08/2023
 //GRUPO: F.A.M.I.L.I.A. (Fundacao Amigos da Modernidade Impetuosamente Leviana de Inquietos Anafilaticos)
 //Kaua Cordeiro, Luan Capella, Manoela Martedi, Nicolas Mariano
 
 #include "Dom_KLMN_View.h"
-
 int fMenuInicio () //visualizacao do menu
 {
 	int opc;
@@ -13,12 +12,8 @@ int fMenuInicio () //visualizacao do menu
     printf("|                  Jogo de Domino (PUC-SP)              |\n");
     printf("|                                                       |\n");
     printf("| 1. Iniciar jogo (2 jogadores)                         |\n");
-    printf("| 2. Iniciar jogo (contra o computador)                 |\n");
-    printf("| 3. Retornar ao jogo interrompido				    	|\n");
-    printf("| 4. Regras gerais do Jogo                              |\n");
-    printf("| 5. Salvar o jogo                                      |\n");
-    printf("| 6. Recuperar o jogo salvo                             |\n");
-    printf("| 0. Sair                                               |\n");
+    printf("| 2. Iniciar jogo (1 jogador)                           |\n");
+    printf("| 0. Sair do jogo                                       |\n");
     printf("+-------------------------------------------------------+\n\n");
 
 	printf("Digite uma opcao: ");
@@ -27,21 +22,40 @@ int fMenuInicio () //visualizacao do menu
 	return(opc);
 }
 
-void fPrintPecas () //Exibir pecas
+void fPrintPrimeiroJogador()
 {
-	for (int i = 0; i < MAX; i++)
-    {
-        printf("[%d|%d] ", peca[i].ladoE, peca[i].ladoD);
-    }
+	printf("Primeira jogada foi do jogador %d.\n", J);
 }
 
-int apresentaPeca(char jogador)
+void fMensagem (char *msg)
 {
-	return 1;
+	printf("%s", msg);
 }
 
-void fPrintMensagem (char *msg)
+void fMesa ()
 {
-	printf("\n%s", msg);
+	printf("\n\n===============\nM E S A:");
+
+	int i, j;
+	for (i = 0; i < numeroJogadas; i++)
+	{
+		printf(" [%d|%d]", mesa[i].lado1, mesa[i].lado2);
+	}
+	printf("\n===============\n\n");
 }
 
+void fPrintPecas (int jogador)
+{
+	indicePeca = 97; int i;
+	
+	printf("Jogador %d\t Pecas: ", jogador);
+	for (i = 0; i < MAX; i++)
+	{
+		if (peca[i].status == jogador) //se a peca pertencer ao jogador
+		{
+			printf(" %c.[%d|%d]", indicePeca, peca[i].lado1, peca[i].lado2);
+			indicePeca++;
+		}
+	}
+	printf("\n---------------\n\n");
+}

@@ -1,24 +1,23 @@
-//DOM-KLMN - Projeto Domino - Etapa 2
-//16/08/2023
+//DOM-KLMN - Projeto Domino - Etapa 3
+//20/08/2023
 //GRUPO: F.A.M.I.L.I.A. (Fundacao Amigos da Modernidade Impetuosamente Leviana de Inquietos Anafilaticos)
 //Kaua Cordeiro, Luan Capella, Manoela Martedi, Nicolas Mariano
 
 #include "Dom_KLMN_Model.h"
 
-#define MAX 28
+
 typedef struct pecas //estrutura para as pecas
 {
-	int ladoE; int ladoD; //valor numerico (1-6) de cada lado
-	int pos; //posicao na ordem correta
-	char status;
+	int lado1; int lado2; //valor numerico (1-6) de cada lado
+	int status; // 1: primeiro jogador, 2: segundo jogador (ou computador), 3: para comprar, 4: mesa
 } valoresPecas;
+
 
 valoresPecas peca[MAX]; 
 valoresPecas aux; //auxiliar para a randomizacao
 
-struct Mesa
+struct mesa
 {
-	int ladoE;
-	int ladoD;
-} mesa[28];
+	int lado1, lado2;
+} mesa[MAX];
 
