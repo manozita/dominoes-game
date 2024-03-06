@@ -56,8 +56,11 @@ In addition to these options, there is a game rules section, which lists the ess
 
 ## Contributions
 Kauã Cordeiro Cavalheiro
+
 Luan Bonasorte Capella
+
 Nicolas Mariano
+
 Teacher Eli Banks
 
 #### The project was coded using C.
