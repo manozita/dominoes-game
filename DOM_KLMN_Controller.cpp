@@ -1,5 +1,5 @@
-//DOM-KLMN - Projeto Domino - Etapa 5
-//13/09/2023
+//DOM-KLMN - Projeto Domino - Etapa 6
+//20/09/2023
 //GRUPO: F.A.M.I.L.I.A. (Fundacao Amigos da Modernidade Impetuosamente Leviana de Inquietos Anafilaticos)
 //Kaua Cordeiro, Luan Capella, Manoela Martedi, Nicolas Mariano
 
@@ -31,8 +31,7 @@ void fIniciarJogo () //inicio do jogo
 			{
 				system("cls");
 				fGerarDomino();
-				char msg[] = "\nFuncao nao implementada.";
-				fMensagem (msg);
+				fUmJogador ();
 				jogoMaquina = true;
 				break;
 			}
@@ -45,8 +44,7 @@ void fIniciarJogo () //inicio do jogo
 					break;
 				}
 				if (jogoMaquina)
-					break;
-					//funcao para jogo com a maquina
+					fUmJogador();
 				else
 					fDoisJogadores();
 				break;
@@ -63,11 +61,16 @@ void fIniciarJogo () //inicio do jogo
 				if (fRecuperarCadastro())
 				{
 					if (jogoMaquina)
-						break;
-						//funcao para jogo com a maquina
+						fUmJogador();
 					else
 						fDoisJogadores();
 				}
+				break;
+			}
+			case 6:
+			{
+				system("cls");
+				fPrintRegras();
 				break;
 			}
 			case 0: //sair do jogo
@@ -94,6 +97,7 @@ void fGerarDomino () //gerar o domino inicial
 	int n = 0;
 	numeroJogadas = 0; //inicializar numero de jogadas como 0
 	fimJogo = false;
+	qtdPecasDeposito = 14;
 	
 	for (i = 0; i <= 6; i++) 
 	{
@@ -174,8 +178,56 @@ void fPrimeiroLance() //definir de quem sera a primeira jogada
 	
 }
 
+void fUmJogador () //iniciar o jogo para um jogador contra a maquina
+{
+	int retorno;
+	if (numeroJogadas == 0) //caso seja um jogo novo
+	{
+		fSepararPecas ();
+		fPrimeiroLance();
+		
+		system("cls"); //limpar a tela
+		
+		fPrintPrimeiroJogador();
+	}
+	else
+	{
+		system("cls"); //limpar a tela
+		J = (J == 1) ? 2 : 1; //metodo para manter o mesmo jogador caso nao seja jogo novo
+	}
+	
+	do
+	{	
+	
+		J = (J == 1) ? 2 : 1; //J = 1? se sim, J = 2, se nao, J = 1
+		
+		if (J == 2)
+		{
+			fJogadaMaquina();
+		}
+		else if (J == 1)
+		{
+			fMesa();
+			if (fMenuJogador(J) == false) //se o jogador digitar para sair do jogo
+				break;
+			system("cls"); //limpar a tela para o proximo jogador
+		}
+		
+		retorno = fChecarVencedor();
+			
+		if (retorno != 0)
+		{
+			fimJogo = true;
+			fPrintVencedor(retorno);
+			break;
+		}
+		
+	} while (1);
+}
+
 void fDoisJogadores () //iniciar o jogo para dois jogadores
 {
+	int retorno;
 	
 	if (numeroJogadas == 0) //caso seja um jogo novo
 	{
@@ -197,16 +249,97 @@ void fDoisJogadores () //iniciar o jogo para dois jogadores
 		if (fMenuJogador(J) == false) //se o jogador digitar para sair do jogo
 			break;
 			
-		if (fChecarVencedor() == J)
+		retorno = fChecarVencedor();
+			
+		if (retorno != 0)
 		{
 			fimJogo = true;
-			fPrintVencedor(J);
+			fPrintVencedor(retorno);
 			break;
 		}
 			
 		system("cls"); //limpar a tela para o proximo jogador
 		
 	} while (1);
+}
+
+void fJogadaMaquina()
+{
+	int i; 
+	int qtdCompras = 0;
+	bool jogadaPassada = false;
+	do
+	{
+		for (indicePeca = 0; indicePeca < MAX; indicePeca++) //varrer todas as pecas disponiveis e descobrir se alguma delas e jogavel
+		{
+			if (peca[indicePeca].status == J && ((mesa[0].lado1 == peca[indicePeca].lado1 || mesa[0].lado1 == peca[indicePeca].lado2) || (mesa[numeroJogadas-1].lado2 == peca[indicePeca].lado1 || mesa[numeroJogadas-1].lado2 == peca[indicePeca].lado2)))
+			{
+				break;
+			}
+		}
+		
+		if (indicePeca >= MAX) //nenhuma peca do jogador e jogavel
+		{
+			if (fDepositoVazio() == false)
+			{
+				fCompra(J);
+				qtdCompras++;
+				continue;
+			}
+			else
+			{	
+				jogadaPassada = true; //jogada passada
+				fPrintResultadoMaquina(qtdCompras, jogadaPassada);
+				return;
+			}
+				
+		}
+		
+		if (mesa[0].lado1 == peca[indicePeca].lado1 || mesa[0].lado1 == peca[indicePeca].lado2) //jogavel na esquerda
+		{
+			//deslocamento de toda a mesa para abrir a primeira posição 0
+			for(i = numeroJogadas; i > 0; i--)
+				mesa[i] = mesa[i-1];
+		
+			//verifica se será necessário inverter a peça a ser jogada e
+			//joga na posição 0 da mesa
+		
+			if (peca[indicePeca].lado2 == mesa[0].lado1)
+			{
+				mesa[0].lado2 = peca[indicePeca].lado2;
+				mesa[0].lado1 = peca[indicePeca].lado1;
+			}
+			else
+			{
+				mesa[0].lado2 = peca[indicePeca].lado1;
+				mesa[0].lado1 = peca[indicePeca].lado2;
+			}
+		}
+		else //jogavel somente na direita
+		{
+			if (peca[indicePeca].lado1 == mesa[numeroJogadas-1].lado2)
+			{
+				mesa[numeroJogadas].lado2 = peca[indicePeca].lado2;
+				mesa[numeroJogadas].lado1 = peca[indicePeca].lado1;
+			}
+			else
+			{
+				mesa[numeroJogadas].lado2 = peca[indicePeca].lado1;
+				mesa[numeroJogadas].lado1 = peca[indicePeca].lado2;
+			}
+		}
+		
+		numeroJogadas++;
+
+		peca[indicePeca].status = 4; //atualiza o status da peça jogada
+		
+		break;
+	
+	} while (1);
+	
+	fPrintResultadoMaquina(qtdCompras, jogadaPassada);
+	
+	return; //jogada bem sucedida
 }
 
 bool fMenuJogador (int jogador) //ler as opcoes do menu
@@ -250,6 +383,7 @@ bool fMenuJogador (int jogador) //ler as opcoes do menu
 			}
 			case 'S': //finalizar o jogo e voltar ao menu
 			{
+				system("cls");
 				fMensagem ("\nFinalizando jogo...");
 				return false; //sair do jogo
 			}
@@ -269,7 +403,9 @@ bool fJogada(int jogador) //jogar
 	
 	if (fPecasJogaveis(jogador) == false)
 	{
-		fMensagem("\nNao ha pecas disponiveis para jogada.\nVoce deve comprar uma peca.\n\n");
+		system("cls");
+		fMensagem("\nNao ha pecas disponiveis para jogada.\nVoce deve comprar uma peca.");
+		fMesa();
 		return false;
 	}
 	
@@ -331,13 +467,16 @@ int fChecarPeca(int i) //checar se a peca e valida
 	
 	if ((mesa[0].lado1 == peca[i].lado1 || mesa[0].lado1 == peca[i].lado2) && (mesa[numeroJogadas-1].lado2 == peca[i].lado1 || mesa[numeroJogadas-1].lado2 == peca[i].lado2))
 	{
+		
 		fMensagem("Escolha um lado (E/D).\n");
-		char fEscolhaChar();
+		opc[0] = fEscolhaChar();
 		
 		if (opc[0] == 'd')
 			return 2; //2 - direita
+		else if (opc[0] == 'e')
+			return 1; //1 - esquerda
 		else
-			return 1; //1 - esquerda	
+			return 0;	
 	}
 	
 	if (mesa[0].lado1 == peca[i].lado1 || mesa[0].lado1 == peca[i].lado2)
@@ -413,11 +552,18 @@ void fCompra(int jogador) //comprar peca
 		if (peca[i].status == 3) //status 3 = na mesa
 		{
 			peca[i].status = jogador; //peca comprada
-			fMesa ();
+			if (jogador == 1 || (jogador == 2 && !(jogoMaquina)))
+			{
+				system("cls");
+				fMensagem("\nPeca comprada.");
+				fMesa ();
+			}
+			qtdPecasDeposito--; //uma peca a menos no deposito
 			return;
 		}
 	}
-	fMensagem("Nada a comprar.\n");
+	if (jogador == 1 || (jogador == 2 && !(jogoMaquina)))
+		fMensagem("\nNada a comprar.\n");
 }
 
 bool fDepositoVazio() //verificar se esta disponivel para compras
@@ -465,11 +611,11 @@ int fChecarVencedor() //checar se ha um vencedor
 		if (pecas1 == 0) //jogador 1 sem pecas
 			return 1;
 		else if (pecas2 == 0) //jogador 2 sem pecas
-			return 2;
+			return 1;
 		else if (fPecasJogaveis(1) == false && fPecasJogaveis(2) == false) //se nenhum dos jogadores tiver pecas para jogar
 		{
 			if (pecas1 < pecas2) //se o jogador 1 tiver menos pecas
-				return 1;
+				return 2;
 			else if (pecas2 < pecas1) //se o jogador 2 tiver menos pecas
 				return 2;
 				
@@ -485,9 +631,9 @@ int fChecarVencedor() //checar se ha um vencedor
 			}
 			
 			if (pecas1 < pecas2) //jogador 1 vence com menos pontos
-				return 1;
+				return 3;
 			else //jogador 2 vence com menos pontos
-				return 2;
+				return 3;
 		}	
 	}
 	
@@ -514,6 +660,7 @@ void fGravaCadastro()
 	
 	sitJogo.qtdJogadas = numeroJogadas;
 	sitJogo.jogadorAtual = J;
+	sitJogo.pecasDeposito = qtdPecasDeposito;
 	
 	if (jogoMaquina)
 		sitJogo.jogadorComputador = true;
@@ -617,6 +764,8 @@ bool fRecuperarCadastro()
 	numeroJogadas = sitJogo.qtdJogadas;
 	
 	J = sitJogo.jogadorAtual;
+	
+	qtdPecasDeposito = sitJogo.pecasDeposito;
 	
 	if (sitJogo.jogadorComputador)
 		jogoMaquina = true;
