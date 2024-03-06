@@ -1,25 +1,26 @@
-//DOM-KLMN - Projeto Domino - Etapa 3
-//20/08/2023
+//DOM-KLMN - Projeto Domino - Etapa 5
+//13/09/2023
 //GRUPO: F.A.M.I.L.I.A. (Fundacao Amigos da Modernidade Impetuosamente Leviana de Inquietos Anafilaticos)
 //Kaua Cordeiro, Luan Capella, Manoela Martedi, Nicolas Mariano
 
 #include "Dom_KLMN_View.h"
-int fMenuInicio () //visualizacao do menu
+void fMenuInicio () //visualizacao do menu
 {
-	int opc;
 
     printf("\n+-------------------------------------------------------+\n");
     printf("|                  Jogo de Domino (PUC-SP)              |\n");
     printf("|                                                       |\n");
     printf("| 1. Iniciar jogo (2 jogadores)                         |\n");
     printf("| 2. Iniciar jogo (1 jogador)                           |\n");
+    printf("| 3. Voltar ao jogo                                     |\n");
+    printf("| 4. Salvar jogo                                        |\n");
+    printf("| 5. Recuperar jogo salvo                               |\n");
     printf("| 0. Sair do jogo                                       |\n");
     printf("+-------------------------------------------------------+\n\n");
 
 	printf("Digite uma opcao: ");
 	scanf("%d", &opc);
 
-	return(opc);
 }
 
 void fPrintPrimeiroJogador()
@@ -66,3 +67,21 @@ void fPrintVencedor(int jogador)
 	
 	printf("\nParabens, jogador %d, voce venceu o jogo!\n", jogador);
 }
+
+char fEscolhaChar()
+{
+	char opcaoEscolha[2];
+	do
+	{
+		fMensagem ("Opcao: ");
+		fflush(stdin); //limpar o buffer
+		scanf("%c", &opcaoEscolha[0]);
+		if (opcaoEscolha[0] == '\0') //caso nada tenha sido digitado
+			fMensagem ("\nOpcao invalida.");
+
+	} while (opcaoEscolha[0] == '\0');
+	
+	return (opcaoEscolha[0]);
+}
+
+

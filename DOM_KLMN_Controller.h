@@ -1,5 +1,5 @@
-//DOM-KLMN - Projeto Domino - Etapa 3
-//20/08/2023
+//DOM-KLMN - Projeto Domino - Etapa 5
+//13/09/2023
 
 void fIniciarJogo (); //inicio do jogo
 void fGerarDomino (); //gerar o domino inicial
@@ -16,3 +16,5 @@ void fCompra (int jogador); //comprar peca
 bool fDepositoVazio(); //verificar se esta disponivel para compras
 bool fPecasJogaveis(int jogadorDaVez); //checa se ha pecas jogaveis para o jogador da vez
 int fChecarVencedor(); //checa se ha um vencedor
+bool fRecuperarCadastro(); //recupera salvamento ja feito
+void fGravaCadastro(); //salva jogo da mae de quem ta lendo

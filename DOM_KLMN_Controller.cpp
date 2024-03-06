@@ -1,5 +1,5 @@
-//DOM-KLMN - Projeto Domino - Etapa 3
-//20/08/2023
+//DOM-KLMN - Projeto Domino - Etapa 5
+//13/09/2023
 //GRUPO: F.A.M.I.L.I.A. (Fundacao Amigos da Modernidade Impetuosamente Leviana de Inquietos Anafilaticos)
 //Kaua Cordeiro, Luan Capella, Manoela Martedi, Nicolas Mariano
 
@@ -17,37 +17,73 @@ void fIniciarJogo () //inicio do jogo
     do
 	{
 		putchar('\n');
-		opcMenu = fMenuInicio(); //guardar a opcao escolhida pelo usuario
+		fMenuInicio(); //guardar a opcao escolhida pelo usuario
 		
-		switch(opcMenu) //opcao para cada saida do menu
+		switch(opc) //opcao para cada saida do menu
 		{
 			case 1: //inicio com 2 jogadores
 				system("cls");
 				fGerarDomino();
 				fDoisJogadores ();
+				jogoMaquina = false;
 				break;
 			case 2: //inicio com 1 jogador
-				{
+			{
 				system("cls");
 				fGerarDomino();
 				char msg[] = "\nFuncao nao implementada.";
 				fMensagem (msg);
+				jogoMaquina = true;
 				break;
+			}
+			case 3:
+			{
+				if (numeroJogadas == 0)
+				{	
+					system("cls");
+					fMensagem("\nSem jogo iniciado.\n");
+					break;
 				}
-			case 0: //sair do jogo
+				if (jogoMaquina)
+					break;
+					//funcao para jogo com a maquina
+				else
+					fDoisJogadores();
+				break;
+			}
+			case 4:
+			{
+				system("cls");
+				fGravaCadastro();
+				break;
+			}
+			case 5:
+			{
+				system("cls");
+				if (fRecuperarCadastro())
 				{
+					if (jogoMaquina)
+						break;
+						//funcao para jogo com a maquina
+					else
+						fDoisJogadores();
+				}
+				break;
+			}
+			case 0: //sair do jogo
+			{
 				system("cls");
 				char msg[] = "\nSaindo...\n";
 				fMensagem (msg);
-				break;
-				}
+				return;
+			}
 			default:
-				{
+			{
 				system("cls");
 				char msg[] = "\nOpcao invalida.";
 				fMensagem (msg);
 				break;
-				}
+			}
 		}
 	} while (opcMenu != 0); //condicao de parada
 }
@@ -57,6 +93,7 @@ void fGerarDomino () //gerar o domino inicial
 	int i, j;
 	int n = 0;
 	numeroJogadas = 0; //inicializar numero de jogadas como 0
+	fimJogo = false;
 	
 	for (i = 0; i <= 6; i++) 
 	{
@@ -140,10 +177,15 @@ void fPrimeiroLance() //definir de quem sera a primeira jogada
 void fDoisJogadores () //iniciar o jogo para dois jogadores
 {
 	
-	fSepararPecas ();
-	fPrimeiroLance();
-	
-	fPrintPrimeiroJogador();
+	if (numeroJogadas == 0) //caso seja um jogo novo
+	{
+		fSepararPecas ();
+		fPrimeiroLance();
+		
+		fPrintPrimeiroJogador();
+	}
+	else
+		J = (J == 1) ? 2 : 1; //metodo para manter o mesmo jogador caso nao seja jogo novo
 	
 	do
 	{
@@ -157,6 +199,7 @@ void fDoisJogadores () //iniciar o jogo para dois jogadores
 			
 		if (fChecarVencedor() == J)
 		{
+			fimJogo = true;
 			fPrintVencedor(J);
 			break;
 		}
@@ -171,21 +214,13 @@ bool fMenuJogador (int jogador) //ler as opcoes do menu
 	
 	do
 	{
+		
 		fPrintPecas(jogador);
 		char opc[2];
 
 		fMensagem ("J - Jogar\nC - Comprar\nP - Passar\nS - Sair (fim de jogo)\n");
 
-		do
-		{
-			fMensagem ("Opcao: ");
-			fflush(stdin); //limpar o buffer
-			scanf("%c", &opc[0]);
-			if (opc[0] == '\0') //caso nada tenha sido digitado
-			{
-				fMensagem ("\nOpcao invalida.");
-			}
-		} while (opc[0] == '\0');
+		opc[0] = fEscolhaChar();
 
 		opc[0] = toupper(opc[0]); //deixar caractere minusculo maiusculo
 
@@ -200,7 +235,12 @@ bool fMenuJogador (int jogador) //ler as opcoes do menu
 				break;
 			case 'P': //passar a jogada
 			{
-				if (fDepositoVazio() == false) //caso o deposito nao estiver vazio
+				if (fPecasJogaveis(jogador) == true) //se o jogador da vez tiver pecas para se jogar
+				{
+					fMensagem("\nPassagem bloqueada. O jogador tem pecas jogaveis.\n\n");
+					break;
+				}
+				else if (fDepositoVazio() == false) //caso o deposito nao estiver vazio
 				{
 					fMensagem("\nPassagem bloqueada. O deposito nao esta vazio.\nVoce deve jogar ou comprar.\n\n");
 					break;
@@ -237,9 +277,8 @@ bool fJogada(int jogador) //jogar
 	int pj, numeroPeca, aux;
 	do
 	{
-		fMensagem ("Escolha a peca para jogar (0 para desistir): ");
-		fflush(stdin); //limpar o buffer
-		scanf("%c", &opc[0]);
+		fMensagem ("Escolha a peca para jogar (0 para desistir).\n");
+		opc[0] = fEscolhaChar();
 		opc[0] = tolower(opc[0]); //convertendo o caractere para letra minuscula
 		if (opc[0] == '0') //desistir da jogada
 		{
@@ -292,19 +331,8 @@ int fChecarPeca(int i) //checar se a peca e valida
 	
 	if ((mesa[0].lado1 == peca[i].lado1 || mesa[0].lado1 == peca[i].lado2) && (mesa[numeroJogadas-1].lado2 == peca[i].lado1 || mesa[numeroJogadas-1].lado2 == peca[i].lado2))
 	{
-		do 
-		{
-			fMensagem("Escolha um lado (E/D): ");
-			fflush(stdin);
-			scanf("%c", &opc[0]);
-			opc[0] = tolower(opc[0]); //convertendo o caractere para letra minuscula
-			if (opc[0] == '\0' || (opc[0] != 'd' && opc[0] != 'e'))
-			{
-				fMensagem ("\nOpcao invalida.\n\n");
-			}
-			else
-				break;
-		} while (1);
+		fMensagem("Escolha um lado (E/D).\n");
+		char fEscolhaChar();
 		
 		if (opc[0] == 'd')
 			return 2; //2 - direita
@@ -397,7 +425,7 @@ bool fDepositoVazio() //verificar se esta disponivel para compras
 	for(int i = 0; i < 28; i++)
 	{
 		if (peca[i].status == 3) //se a peca estiver disponivel para compra
-		return false;
+			return false;
 	}
 	return true;
 }
@@ -466,5 +494,137 @@ int fChecarVencedor() //checar se ha um vencedor
 	return 0; //sem vencedores
 }
 
+void fGravaCadastro()
+{
+	if(numeroJogadas == 0)
+	{
+		fMensagem("\nSem jogo a ser gravado.\n");
+		return;
+	}
+	else if (fimJogo == true)
+	{
+		fMensagem("\nJogo terminado nao pode ser gravado.\n");
+		return;
+	}
+	
+	int i;
+	FILE *fp;
+	FILE *fpm;
+	FILE *fps;
+	
+	sitJogo.qtdJogadas = numeroJogadas;
+	sitJogo.jogadorAtual = J;
+	
+	if (jogoMaquina)
+		sitJogo.jogadorComputador = true;
+	else
+		sitJogo.jogadorComputador = false;
+		
+	//Checagem de erros para abertura dos arquivos
+		
+	if ( (fp = fopen("CAD_DOMINO", "w") ) == NULL)
+	{
+		fMensagem("\nO arquivo CAD_DOMINO nao pode ser aberto para cadastro.\n");
+		return;
+	}
+	if ( (fpm = fopen("CAD_MESA", "w") ) == NULL)
+	{
+		fMensagem("\nO arquivo CAD_MESA nao pode ser aberto para cadastro.\n");
+		return;
+	}
+	if ( (fps = fopen("CAD_JOGO", "w") ) == NULL)
+	{
+		fMensagem("\nO arquivo CAD_JOGO nao pode ser aberto para cadastro.\n");
+		return;
+	}
+	
+	for (i = 0; i<MAX; i++)
+	{
+		if (fwrite(&peca[i], sizeof(struct pecas), 1, fp) != 1)
+		{
+			fMensagem("\nErro na gravacao do arquivo CAD_DOMINO.\n");
+			break;
+		}
+	}
+	
+	for (i = 0; i<MAX; i++)
+	{
+		if (fwrite(&mesa[i], sizeof(struct mesa), 1, fpm) != 1)
+		{
+			fMensagem("\nErro na gravacao do arquivo CAD_MESA.\n");
+			break;
+		}
+	}
+	
+	if (fwrite(&sitJogo, sizeof(struct jogo), 1, fps) != 1)
+		fMensagem("\nErro na gravacao do arquivo CAD_JOGO.\n");
+		
+	
+	//gravacao bem suscedida
+	
+	fclose(fps);
+	fclose(fpm);
+	fclose(fp);
+	
+	fMensagem("\nGravados os arquivos CAD_DOMINO, CAD_MESA e CAD_JOGO com sucesso.\n");
 
+}
 
+bool fRecuperarCadastro()
+{
+	int i;
+	FILE *fp;
+	FILE *fpm;
+	FILE *fps;
+	
+	if ((fp = fopen("CAD_DOMINO", "r")) == NULL)
+	{
+		fMensagem("\nO arquivo CAD_DOMINO nao pode ser aberto.\n");
+		return false;
+	}
+	if ((fpm = fopen("CAD_MESA", "r")) == NULL)
+	{
+		fMensagem("\nO arquivo CAD_MESA nao pode ser aberto.\n");
+		return false;
+	}
+	if ((fps = fopen("CAD_JOGO", "r")) == NULL)
+	{
+		fMensagem("\nO arquivo CAD_JOGO nao pode ser aberto\.");
+		return false;
+	}
+	
+	for (i = 0; i<MAX; i++)
+	{
+		if (fread(&peca[i], sizeof(struct pecas), 1, fp) != 1)
+			fMensagem("\nErro na gravacao do arquivo CAD_DOMINO.\n");
+	}
+	
+	for (i = 0; i<MAX; i++)
+	{
+		if (fread(&mesa[i], sizeof(struct mesa), 1, fpm) != 1)
+			fMensagem("\nErro na gravacao do arquivo CAD_MESA.\n");
+	}
+	
+	if (fread(&sitJogo, sizeof(struct jogo), 1, fps) != 1)
+			fMensagem("\nErro na gravacao do arquivo CAD_JOGO.\n");
+	
+	//gravacao bem suscedida
+	
+	fclose(fps); fclose(fpm); fclose(fp);
+	
+	//recuperar dados do jogo salvo
+	
+	numeroJogadas = sitJogo.qtdJogadas;
+	
+	J = sitJogo.jogadorAtual;
+	
+	if (sitJogo.jogadorComputador)
+		jogoMaquina = true;
+	else
+		jogoMaquina = false;
+		
+	fMensagem("\nRetornando ao jogo recuperado...\n\n");
+	
+	return true;
+
+}

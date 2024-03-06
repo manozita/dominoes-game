@@ -1,5 +1,5 @@
-//DOM-KLMN - Projeto Domino - Etapa 3
-//20/08/2023
+//DOM-KLMN - Projeto Domino - Etapa 4
+//06/09/2023
 //GRUPO: F.A.M.I.L.I.A. (Fundacao Amigos da Modernidade Impetuosamente Leviana de Inquietos Anafilaticos)
 //Kaua Cordeiro, Luan Capella, Manoela Martedi, Nicolas Mariano
 
@@ -20,4 +20,13 @@ struct mesa
 {
 	int lado1, lado2;
 } mesa[MAX];
+
+struct jogo
+{
+	int qtdJogadas; //quantidade de jogadas, tambem conta a quantidade de pecas na mesa
+	int jogadorAtual; //o jogador da vez
+	bool jogadorComputador; //jogador contra computador?
+} sitJogo; //situacao do jogo
+
+
 

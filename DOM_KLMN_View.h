@@ -1,9 +1,10 @@
-//DOM-KLMN - Projeto Domino - Etapa 3
-//20/08/2023
+//DOM-KLMN - Projeto Domino - Etapa 5
+//13/09/2023
 
-int fMenuInicio ();
+void fMenuInicio ();
 void fPrintPrimeiroJogador();
 void fMensagem ();
 void fMesa ();
 void fPrintPecas (int jogador);
 void fPrintVencedor(int jogador);
+char fEscolhaChar();
