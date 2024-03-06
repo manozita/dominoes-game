@@ -59,3 +59,10 @@ void fPrintPecas (int jogador)
 	}
 	printf("\n---------------\n\n");
 }
+
+void fPrintVencedor(int jogador)
+{
+	system("cls");
+	
+	printf("\nParabens, jogador %d, voce venceu o jogo!\n", jogador);
+}

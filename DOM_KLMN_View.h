@@ -6,3 +6,4 @@ void fPrintPrimeiroJogador();
 void fMensagem ();
 void fMesa ();
 void fPrintPecas (int jogador);
+void fPrintVencedor(int jogador);

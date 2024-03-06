@@ -155,6 +155,12 @@ void fDoisJogadores () //iniciar o jogo para dois jogadores
 		if (fMenuJogador(J) == false) //se o jogador digitar para sair do jogo
 			break;
 			
+		if (fChecarVencedor() == J)
+		{
+			fPrintVencedor(J);
+			break;
+		}
+			
 		system("cls"); //limpar a tela para o proximo jogador
 		
 	} while (1);
@@ -162,6 +168,7 @@ void fDoisJogadores () //iniciar o jogo para dois jogadores
 
 bool fMenuJogador (int jogador) //ler as opcoes do menu
 {
+	
 	do
 	{
 		fPrintPecas(jogador);
@@ -219,20 +226,11 @@ bool fMenuJogador (int jogador) //ler as opcoes do menu
 
 bool fJogada(int jogador) //jogar
 {
-	int j;
 	
-	
-	for (j = 0; j < MAX; j++) //varrer todas as pecas disponiveis e descobrir se alguma delas e jogavel
-	{
-		if (peca[j].status == jogador && ((mesa[0].lado1 == peca[j].lado1 || mesa[0].lado1 == peca[j].lado2) || (mesa[numeroJogadas-1].lado2 == peca[j].lado1 || mesa[numeroJogadas-1].lado2 == peca[j].lado2)))
-		{
-			break;
-		}
-	}
-	if (j >= MAX) //nenhuma peca do jogador e jogavel
+	if (fPecasJogaveis(jogador) == false)
 	{
 		fMensagem("\nNao ha pecas disponiveis para jogada.\nVoce deve comprar uma peca.\n\n");
-		return false; //jogada mal sucedida
+		return false;
 	}
 	
 	char opc[2];
@@ -404,7 +402,69 @@ bool fDepositoVazio() //verificar se esta disponivel para compras
 	return true;
 }
 
+bool fPecasJogaveis(int jogadorDaVez) //checa se ha pecas jogaveis para o jogador da vez
+{
+	int j;
+	
+	for (j = 0; j < MAX; j++) //varrer todas as pecas disponiveis e descobrir se alguma delas e jogavel
+	{
+		if (peca[j].status == jogadorDaVez && ((mesa[0].lado1 == peca[j].lado1 || mesa[0].lado1 == peca[j].lado2) || (mesa[numeroJogadas-1].lado2 == peca[j].lado1 || mesa[numeroJogadas-1].lado2 == peca[j].lado2)))
+		{
+			break;
+		}
+	}
+	if (j >= MAX) 
+	{
+		return false; //nenhuma peca do jogador e jogavel
+	}
+	return true; //peca jogavel
+}
 
+int fChecarVencedor() //checar se ha um vencedor
+{
+	int i, pecas1 = 0, pecas2 = 0;
+	
+	for (i = 0; i < MAX; i++) //contar quantidade de pecas para cada jogador (1 e 2)
+		{
+			if (peca[i].status == 1)
+				pecas1++;
+			else if (peca[i].status == 2)
+				pecas2++;
+		}
+	
+	if (fDepositoVazio()) //se nao houver mais pecas compraveis
+	{
+		if (pecas1 == 0) //jogador 1 sem pecas
+			return 1;
+		else if (pecas2 == 0) //jogador 2 sem pecas
+			return 2;
+		else if (fPecasJogaveis(1) == false && fPecasJogaveis(2) == false) //se nenhum dos jogadores tiver pecas para jogar
+		{
+			if (pecas1 < pecas2) //se o jogador 1 tiver menos pecas
+				return 1;
+			else if (pecas2 < pecas1) //se o jogador 2 tiver menos pecas
+				return 2;
+				
+			//quantidade de pecas igual
+			pecas1 = pecas2 = 0;
+				
+			for (i = 0; i < MAX; i++) //soma cada lado de cada peca para descobrir quantos pontos
+			{
+				if (peca[i].status == 1)
+					pecas1 += peca[i].lado1 + peca[i].lado2;
+				else if (peca[i].status == 2)
+					pecas2 += peca[i].lado1 + peca[i].lado2;
+			}
+			
+			if (pecas1 < pecas2) //jogador 1 vence com menos pontos
+				return 1;
+			else //jogador 2 vence com menos pontos
+				return 2;
+		}	
+	}
+	
+	return 0; //sem vencedores
+}
 
 
 
